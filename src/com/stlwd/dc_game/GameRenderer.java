@@ -16,7 +16,7 @@ public class GameRenderer implements Renderer{
 	float[] mViewMatrix = new float[16];
 	float[] mMVPMatrix = new float[16];
 	
-	Sprite background;
+	Game game;
 	
 	public GameRenderer(Context context) {
 		mContext = context;
@@ -30,9 +30,10 @@ public class GameRenderer implements Renderer{
 		Matrix.multiplyMM(mMVPMatrix, 0, mProjectionMatrix, 0, mViewMatrix, 0);
 		
 		// Update
+		game.Update();
 		
 		// Draw
-		background.Draw(mMVPMatrix);
+		game.Draw(mMVPMatrix);
 	}
 
 	@Override
@@ -47,8 +48,7 @@ public class GameRenderer implements Renderer{
 	@Override
 	public void onSurfaceCreated(GL10 gl, EGLConfig config) {
 		GLES20.glClearColor(100.0f/255.0f, 137.0f/255.0f, 249.0f/255.0f, 1.0f);
-		background = new Sprite();
-		background.setZ(-1);
+		game = new Game(mContext);
 	}
 
 }

@@ -4,5 +4,15 @@
     <string name="app_name">DC_GAME</string>
     <string name="action_settings">Settings</string>
     <string name="hello_world">Hello world!</string>
+    <string-array name="Heros">
+        <item >Batman</item>
+        <item >Superman</item>
+        <item >Wonder Woman</item>
+    <item >Aquaman</item>
+    <item >The Flash</item>
+    <item >Green Lantern</item>
+    <item >Cyborg</item>
+</string-array>
+    
 
 </resources>

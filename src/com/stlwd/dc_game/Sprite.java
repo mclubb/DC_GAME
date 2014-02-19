@@ -5,22 +5,49 @@ import java.nio.ByteOrder;
 import java.nio.FloatBuffer;
 import java.nio.ShortBuffer;
 
+import android.content.Context;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.opengl.GLES20;
+import android.opengl.GLUtils;
 import android.opengl.Matrix;
 import android.util.Log;
 
 public class Sprite {
 
 	int mProgramId;
+	int textureId;
 	
 	FloatBuffer mVertexBuffer;
 	ShortBuffer mIndexBuffer;
+	FloatBuffer mUVBuffer;
+	String vertexShaderCode = "attribute vec4 aPosition;" +
+			"uniform mat4 aMatrix;" +
+			"attribute vec2 aTexCoord;" +
+			"varying vec2 vTexCoord;" +
+			"void main() {" +
+			"gl_Position = aMatrix * aPosition;" +
+			"vTexCoord = aTexCoord;" +
+			"}";
+	
+	String fragmentShaderCode = "precision mediump float;" +
+			"varying vec2 vTexCoord;" +
+			"uniform sampler2D aTextureSample;" +
+			"void main() {" +
+			"gl_FragColor = texture2D( aTextureSample, vTexCoord);" +
+			"}";
+	
+	Context mContext;
+	
+	public boolean isActive = false;
 	
 	float x, y, z, width, height, depth;
 	
-	public Sprite() {
+	public Sprite(Context context, int ResourceID) {
 		x = 0; y = 0; z= 0; 
 		width = 1; height = 1; depth = 0;
+		mContext = context;
+		SetupImage(ResourceID);
 		InitGL();
 		InitModel();
 	}
@@ -96,11 +123,24 @@ public class Sprite {
 		GLES20.glEnableVertexAttribArray(mPositionHandle);
 		GLES20.glVertexAttribPointer(mPositionHandle, 2, GLES20.GL_FLOAT, false, 0, mVertexBuffer);
 		
+		int mTextureCoordLocation = GLES20.glGetAttribLocation(mProgramId, "aTexCoord");
+		GLES20.glEnableVertexAttribArray(mTextureCoordLocation);
+		GLES20.glVertexAttribPointer(mTextureCoordLocation, 2, GLES20.GL_FLOAT, false, 0, mUVBuffer);
+		
+		int mTextureHandle = GLES20.glGetUniformLocation(mProgramId, "aTextureSample");
+		//Activate the texture
+		GLES20.glActiveTexture(GLES20.GL_TEXTURE0);
+		// Bin dthe texture to the unit
+		GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, textureId);
+		
+		GLES20.glUniform1i(mTextureHandle, 0);
+		
 		// Matrix Stuff
 		float[] ModelMatrix = new float[16];
 		Matrix.setIdentityM(ModelMatrix, 0);
 		Matrix.translateM(ModelMatrix, 0, x, y, z);
 		Matrix.scaleM(ModelMatrix, 0, width, height, 1);
+		
 		
 		float[] temp = ModelMatrix.clone();
 		Matrix.multiplyMM(ModelMatrix, 0, MVPMatrix, 0, temp, 0);
@@ -113,17 +153,39 @@ public class Sprite {
 		GLES20.glDisableVertexAttribArray(mPositionHandle);
 	}
 	
-	private void InitGL() {
-		String vertexShaderCode = "attribute vec4 aPosition;" +
-				"uniform mat4 aMatrix;" +
-				"void main() {" +
-				"gl_Position = aMatrix * aPosition;" +
-				"}";
+	private void SetupImage(int ResourceID)
+	{
+		float[] uvs = {
+			0, 0, 0, 1, 1, 1, 1, 0	
+		};
 		
-		String fragmentShaderCode = "precision mediump float;" +
-				"void main() {" +
-				"gl_FragColor = vec4(1.0f, 1.0f, 1.0f, 1.0f);" +
-				"}";
+		mUVBuffer = ByteBuffer.allocateDirect(uvs.length * 4).order(ByteOrder.nativeOrder()).asFloatBuffer();
+		mUVBuffer.put(uvs).position(0);
+		
+		
+		int[] texturenames = new int[1];
+		GLES20.glGenTextures(1, texturenames, 0);
+		
+		// Read the resource
+		Bitmap bitmap = BitmapFactory.decodeResource(mContext.getResources(), ResourceID);
+		
+		// Bind the texture
+		GLES20.glActiveTexture(GLES20.GL_TEXTURE0);
+		GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, texturenames[0]);
+		
+		// Set filtering
+		GLES20.glTexParameterf(GLES20.GL_TEXTURE_2D, GLES20.GL_TEXTURE_MIN_FILTER, GLES20.GL_LINEAR);
+		GLES20.glTexParameterf(GLES20.GL_TEXTURE_2D, GLES20.GL_TEXTURE_MAG_FILTER, GLES20.GL_LINEAR);
+		
+		// Load the bitmap into the texture
+		GLUtils.texImage2D(GLES20.GL_TEXTURE_2D, 0, bitmap, 0);
+		
+		bitmap.recycle();
+		textureId = texturenames[0];
+	}
+	
+	private void InitGL() {
+		
 		
 		int vertexShader = GLES20.glCreateShader(GLES20.GL_VERTEX_SHADER);
 		GLES20.glShaderSource(vertexShader, vertexShaderCode);
@@ -162,8 +224,8 @@ public class Sprite {
 	}
 	
 	private void InitModel() {
-		float w = 1/2;
-		float h = 1/2;
+		float w = (float)1/2;
+		float h = (float)1/2;
 		float[] vertices = {-w, h, -w, -h, w, -h, w, h};
 		short[] indices = {0,1,2,0,2,3};
 		mVertexBuffer = ByteBuffer.allocateDirect(vertices.length * 4).order(ByteOrder.nativeOrder()).asFloatBuffer();
