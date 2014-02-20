@@ -23,13 +23,13 @@ public class MainActivity extends Activity {
 
 
     @Override
-    public void onPause() {
+    protected void onPause() {
     	mSurfaceView.onPause();
     	super.onPause();
     }
 
     @Override
-    public void onResume() {
+    protected void onResume() {
     	mSurfaceView.onResume();
     	super.onResume();
     }
