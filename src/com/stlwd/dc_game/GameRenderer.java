@@ -14,7 +14,8 @@ public class GameRenderer implements Renderer{
 	
 	float[] mProjectionMatrix = new float[16];
 	float[] mViewMatrix = new float[16];
-	float[] mMVPMatrix = new float[16];
+	float[] mProjectionViewMatrix = new float[16];
+	float[] mInvertedPVMatrix = new float[16];
 	
 	Game game;
 	
@@ -27,13 +28,14 @@ public class GameRenderer implements Renderer{
 		GLES20.glClear(GLES20.GL_COLOR_BUFFER_BIT);
 		
 		Matrix.setLookAtM(mViewMatrix, 0, 0, 0, 5, 0, 0, 0, 0, 1, 0);
-		Matrix.multiplyMM(mMVPMatrix, 0, mProjectionMatrix, 0, mViewMatrix, 0);
+		Matrix.multiplyMM(mProjectionViewMatrix, 0, mProjectionMatrix, 0, mViewMatrix, 0);
+		Matrix.invertM(mInvertedPVMatrix, 0, mProjectionViewMatrix, 0);
 		
 		// Update
 		game.Update();
 		
 		// Draw
-		game.Draw(mMVPMatrix);
+		game.Draw(mProjectionViewMatrix);
 	}
 
 	@Override

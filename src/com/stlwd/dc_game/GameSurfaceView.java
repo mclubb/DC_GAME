@@ -2,6 +2,7 @@ package com.stlwd.dc_game;
 
 import android.content.Context;
 import android.opengl.GLSurfaceView;
+import android.view.MotionEvent;
 
 public class GameSurfaceView extends GLSurfaceView {
 
@@ -34,6 +35,8 @@ public class GameSurfaceView extends GLSurfaceView {
 		
 		mPreviousMouseX = x;
 		mPreviousMouseY = y;
+		
+		return true;
 	}
 
 }
