@@ -50,7 +50,7 @@ public class GameRenderer implements Renderer{
 		// We need to get a Ray object
 		Ray ray = Ray.convertNormalized2DPointToRay(normal_x, normal_y, mInvertedPVMatrix);
 		
-		
+		game.handleTouchDown(ray);
 	}
 	
 	@Override
@@ -66,6 +66,8 @@ public class GameRenderer implements Renderer{
 		
 		// Draw
 		game.Draw(mProjectionViewMatrix);
+		
+		
 	}
 
 	@Override

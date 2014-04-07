@@ -13,10 +13,15 @@ import android.opengl.GLUtils;
 import android.opengl.Matrix;
 import android.util.Log;
 
+import com.stlwd.dc_game.MyUtils.Point;
+import com.stlwd.dc_game.MyUtils.Sphere;
+
 public class Sprite {
 
 	int mProgramId;
 	int textureId;
+	Sphere bounding;
+	boolean selected;
 	
 	FloatBuffer mVertexBuffer;
 	ShortBuffer mIndexBuffer;
@@ -47,6 +52,8 @@ public class Sprite {
 		x = 0; y = 0; z= 0; 
 		width = 1; height = 1; depth = 0;
 		mContext = context;
+		selected = false;
+		
 		SetupImage(ResourceID);
 		InitGL();
 		InitModel();
@@ -62,6 +69,7 @@ public class Sprite {
 
 	public void setX(float x) {
 		this.x = x;
+		setSphere();
 	}
 
 
@@ -73,28 +81,41 @@ public class Sprite {
 
 	public void setY(float y) {
 		this.y = y;
+		setSphere();
 	}
 	
 	public float getZ() {
 		return z;
 	}
+	
+	public void setSphere()
+	{
+		bounding = new Sphere(new Point(x, y, z), width / 2);
+	}
 
+	public Sphere getSphere()
+	{
+		return bounding;
+	}
 
 
 	public void setZ(float z) {
 		this.z = z;
+		setSphere();
 	}
 
 
 
 	public float getWidth() {
 		return width;
+		
 	}
 
 
 
 	public void setWidth(float width) {
 		this.width = width;
+		setSphere();
 	}
 
 
@@ -107,8 +128,20 @@ public class Sprite {
 
 	public void setHeight(float height) {
 		this.height = height;
+		setSphere();
 	}
 
+	public void toggle()
+	{
+		if( selected )
+		{
+			selected = false;
+		}
+		else 
+		{
+			selected = true;
+		}
+	}
 
 
 	public void Update() {
@@ -138,8 +171,17 @@ public class Sprite {
 		// Matrix Stuff
 		float[] ModelMatrix = new float[16];
 		Matrix.setIdentityM(ModelMatrix, 0);
-		Matrix.translateM(ModelMatrix, 0, x, y, z);
-		Matrix.scaleM(ModelMatrix, 0, width, height, 1);
+		
+		if( selected )
+		{
+			Matrix.translateM(ModelMatrix, 0, -(width * 1.5f) / 2, (height * 1.5f) / 2, z + 1);
+			Matrix.scaleM(ModelMatrix, 0, width * 1.5f, height * 1.5f, 1);
+		}
+		else
+		{
+			Matrix.translateM(ModelMatrix, 0, x, y, z);
+			Matrix.scaleM(ModelMatrix, 0, width, height, 1);
+		}
 		
 		
 		float[] temp = ModelMatrix.clone();

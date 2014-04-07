@@ -1,6 +1,8 @@
 package com.stlwd.dc_game;
 
 import android.opengl.Matrix;
+import android.util.FloatMath;
+import android.util.Log;
 
 public class MyUtils {
 
@@ -47,13 +49,49 @@ public class MyUtils {
 			
 		}
 		
+		public boolean intersects(Sprite sprite)
+		{
+			float distance = distanceBetween(sprite.getSphere().center, this);
+			Log.d("DISTANCE", distance + "");
+			float size = sprite.getSphere().radius;
+			return  distance < size;
+		}
+
+		private float distanceBetween(Point center, Ray ray) {
+			Vector p1 = Vector.vectorBetween(ray.point, center);
+			Vector p2 = Vector.vectorBetween(ray.point.translate(ray.vector), center);
+			
+			float areaOfTriangleTimesTwo = p1.crossProduct(p2).length();
+			Log.d("AREA", areaOfTriangleTimesTwo + " ");
+			float lengthOfBase = ray.vector.length();
+			Log.d("LENGTH", lengthOfBase + " ");
+			float distanceFromPointToRay = areaOfTriangleTimesTwo / lengthOfBase;
+			
+			
+			return distanceFromPointToRay;
+		}
+		
 
 		
 	}
 	
+	public static class Sphere
+	{
+		public float radius;
+		public Point center;
+		
+		public Sphere(Point center, float radius)
+		{
+			this.center = center;
+			this.radius = radius;
+		}
+	}
+	
 	public static class Vector
 	{
-		public final float x, y, z;
+		public float x = 0f;
+		public float y = 0f;
+		public float z = 0f;
 		public Vector(float x, float y, float z)
 		{
 			this.x = x;
@@ -65,6 +103,18 @@ public class MyUtils {
 		{
 			return new Vector(far.x - near.x, far.y - near.y, far.z - near.z);
 		}
+		
+		public float length()
+		{
+			return FloatMath.sqrt(x * x + y * y + z * z);
+		}
+		
+		public Vector crossProduct(Vector other)
+		{
+			return new Vector((y * other.z) - (z * other.y),
+					(z * other.x) - (x * other.z),
+					(x * other.y)- (y * other.x));
+		}
 	}
 	
 	public static class Point
@@ -75,6 +125,11 @@ public class MyUtils {
 			this.x = x;
 			this.y = y;
 			this.z = z;
+		}
+		
+		public Point translate(Vector vector)
+		{
+			return new Point(x + vector.x, y + vector.y, z + vector.z);
 		}
 	}
 	

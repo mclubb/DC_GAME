@@ -5,6 +5,9 @@ import java.util.Iterator;
 import java.util.List;
 
 import android.content.Context;
+import android.util.Log;
+
+import com.stlwd.dc_game.MyUtils.Ray;
 
 public class Game {
 	Context mContext;
@@ -148,6 +151,19 @@ public class Game {
 		hand5.setHeight(4.0f);
 		gameObjects.add(hand5);
 
+	}
+	
+	public void handleTouchDown(Ray ray)
+	{
+		Log.d("Touched", "Checking gameobjects");
+		for(Sprite s : gameObjects)
+		{
+			if( ray.intersects(s))
+			{
+				Log.d("Touched", "Touched something");
+				s.toggle();
+			}
+		}
 	}
 	
 	public void Update()
