@@ -3,14 +3,20 @@ package com.stlwd.dc_game;
 import javax.microedition.khronos.egl.EGLConfig;
 import javax.microedition.khronos.opengles.GL10;
 
+import com.stlwd.dc_game.MyUtils.Ray;
+
 import android.content.Context;
 import android.opengl.GLES20;
 import android.opengl.GLSurfaceView.Renderer;
 import android.opengl.Matrix;
+import android.util.Log;
 
 public class GameRenderer implements Renderer{
 
+	static GameRenderer _instance;
 	Context mContext;
+	int height;
+	int width;
 	
 	float[] mProjectionMatrix = new float[16];
 	float[] mViewMatrix = new float[16];
@@ -21,6 +27,30 @@ public class GameRenderer implements Renderer{
 	
 	public GameRenderer(Context context) {
 		mContext = context;
+		
+		if(_instance == null)
+		{
+			_instance = this;
+		}
+	}
+	
+	public static GameRenderer getInstance()
+	{
+		return _instance;
+	}
+	
+	public void handleTouchDown(float x, float y)
+	{
+		// Get the normalized x and y
+		float normal_x = (x / width) * 2 - 1;
+		float normal_y = ((y / height) * 2 - 1) * -1;
+		
+		Log.d("TOUCHED", "X: " + normal_x + " Y: " + normal_y);
+		
+		// We need to get a Ray object
+		Ray ray = Ray.convertNormalized2DPointToRay(normal_x, normal_y, mInvertedPVMatrix);
+		
+		
 	}
 	
 	@Override
@@ -41,6 +71,8 @@ public class GameRenderer implements Renderer{
 	@Override
 	public void onSurfaceChanged(GL10 gl, int width, int height) {
 		GLES20.glViewport(0, 0, width, height);
+		this.width = width;
+		this.height = height;
 		float ratio = (float)width/height;
 		
 		Matrix.frustumM(mProjectionMatrix, 0, -ratio, ratio, -1, 1, 1, 20);

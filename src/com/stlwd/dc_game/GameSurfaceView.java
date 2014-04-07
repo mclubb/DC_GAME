@@ -24,18 +24,28 @@ public class GameSurfaceView extends GLSurfaceView {
 	
 	@Override
 	public boolean onTouchEvent(MotionEvent e) {
-		float x = e.getX();
-		float y = e.getY();
+		final float x = e.getX();
+		final float y = e.getY();
 		
 		switch(e.getAction()) {
 			case MotionEvent.ACTION_MOVE:
 				
+				break;
+			case MotionEvent.ACTION_DOWN:
+				queueEvent(new Runnable() {
+					
+					@Override
+					public void run() {
+						GameRenderer.getInstance().handleTouchDown(x, y);
+					}
+				});
 				break;
 		}
 		
 		mPreviousMouseX = x;
 		mPreviousMouseY = y;
 		
+	
 		return true;
 	}
 
