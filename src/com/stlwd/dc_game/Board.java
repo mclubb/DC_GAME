@@ -9,7 +9,7 @@ public class Board extends Sprite{
 	public Board(Context context, int ResourceID)
 	{
 		super(context, ResourceID);
-		
+		type = "Board";
 	}
 	
 	

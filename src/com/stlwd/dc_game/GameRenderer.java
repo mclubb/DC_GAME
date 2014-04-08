@@ -55,9 +55,9 @@ public class GameRenderer implements Renderer{
 	
 	@Override
 	public void onDrawFrame(GL10 gl) {
-		GLES20.glClear(GLES20.GL_COLOR_BUFFER_BIT);
+		GLES20.glClear(GLES20.GL_COLOR_BUFFER_BIT | GLES20.GL_DEPTH_BUFFER_BIT);
 		
-		Matrix.setLookAtM(mViewMatrix, 0, 0, 0, 5, 0, 0, 0, 0, 1, 0);
+		Matrix.setLookAtM(mViewMatrix, 0, 0, 1, 5.75f, 0, 1, 0, 0, 1, 0);
 		Matrix.multiplyMM(mProjectionViewMatrix, 0, mProjectionMatrix, 0, mViewMatrix, 0);
 		Matrix.invertM(mInvertedPVMatrix, 0, mProjectionViewMatrix, 0);
 		
@@ -84,6 +84,9 @@ public class GameRenderer implements Renderer{
 	@Override
 	public void onSurfaceCreated(GL10 gl, EGLConfig config) {
 		GLES20.glClearColor(100.0f/255.0f, 137.0f/255.0f, 249.0f/255.0f, 1.0f);
+		GLES20.glEnable( GLES20.GL_DEPTH_TEST );
+		GLES20.glDepthFunc( GLES20.GL_LEQUAL );
+		GLES20.glDepthMask( true );
 		game = new Game(mContext);
 	}
 

@@ -22,6 +22,7 @@ public class Sprite {
 	int textureId;
 	Sphere bounding;
 	boolean selected;
+	String type;
 	
 	FloatBuffer mVertexBuffer;
 	ShortBuffer mIndexBuffer;
@@ -53,13 +54,17 @@ public class Sprite {
 		width = 1; height = 1; depth = 0;
 		mContext = context;
 		selected = false;
+		type = "Sprite";
 		
 		SetupImage(ResourceID);
 		InitGL();
 		InitModel();
 	}
 	
-	
+	public String Type()
+	{
+		return type;
+	}
 	
 	public float getX() {
 		return x;
@@ -91,6 +96,11 @@ public class Sprite {
 	public void setSphere()
 	{
 		bounding = new Sphere(new Point(x, y, z), width / 2);
+	}
+	
+	public void setSphere(float x, float y, float z, float radius)
+	{
+		bounding = new Sphere(new Point(x, y, z), radius);
 	}
 
 	public Sphere getSphere()
@@ -174,11 +184,13 @@ public class Sprite {
 		
 		if( selected )
 		{
-			Matrix.translateM(ModelMatrix, 0, -(width * 1.5f) / 2, (height * 1.5f) / 2, z + 1);
-			Matrix.scaleM(ModelMatrix, 0, width * 1.5f, height * 1.5f, 1);
+			setSphere(-(width * 2.5f) / 2, 1, z + 1, (width * 2.5f) / 2);
+			Matrix.translateM(ModelMatrix, 0, -(width * 2.5f) / 2, 1, z + 1);
+			Matrix.scaleM(ModelMatrix, 0, width * 2.5f, height * 2.5f, 1);
 		}
 		else
 		{
+			setSphere();
 			Matrix.translateM(ModelMatrix, 0, x, y, z);
 			Matrix.scaleM(ModelMatrix, 0, width, height, 1);
 		}
