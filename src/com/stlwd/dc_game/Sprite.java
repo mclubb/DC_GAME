@@ -47,11 +47,28 @@ public class Sprite {
 	
 	public boolean isActive = false;
 	
-	float x, y, z, width, height, depth;
+	float x, y, z, width, height, depth, rotation;
 	
 	public Sprite(Context context, int ResourceID) {
 		x = 0; y = 0; z= 0; 
-		width = 1; height = 1; depth = 0;
+		width = 1; height = 1; depth = 1;
+		mContext = context;
+		selected = false;
+		type = "Sprite";
+		
+		SetupImage(ResourceID);
+		InitGL();
+		InitModel();
+	}
+	
+	public Sprite(Context context, int ResourceID, float x, float y, float z, float h, float w, float d, float rot) {
+		this.x = x; 
+		this.y = y; 
+		this.z= z; 
+		this.width = w; 
+		this.height = h; 
+		this.depth = d;
+		this.rotation = rot;
 		mContext = context;
 		selected = false;
 		type = "Sprite";
@@ -140,6 +157,16 @@ public class Sprite {
 		this.height = height;
 		setSphere();
 	}
+	
+	public float getDepth() {
+		return depth;
+	}
+	
+	public void setDepth(float depth)
+	{
+		this.depth = depth;
+		setSphere();
+	}
 
 	public void toggle()
 	{
@@ -164,7 +191,7 @@ public class Sprite {
 		// Position
 		int mPositionHandle = GLES20.glGetAttribLocation(mProgramId, "aPosition");
 		GLES20.glEnableVertexAttribArray(mPositionHandle);
-		GLES20.glVertexAttribPointer(mPositionHandle, 2, GLES20.GL_FLOAT, false, 0, mVertexBuffer);
+		GLES20.glVertexAttribPointer(mPositionHandle, 3, GLES20.GL_FLOAT, false, 0, mVertexBuffer);
 		
 		int mTextureCoordLocation = GLES20.glGetAttribLocation(mProgramId, "aTexCoord");
 		GLES20.glEnableVertexAttribArray(mTextureCoordLocation);
@@ -191,8 +218,15 @@ public class Sprite {
 		else
 		{
 			setSphere();
+
 			Matrix.translateM(ModelMatrix, 0, x, y, z);
+			//float[] RotationMatrix = new float[16];
+			//Matrix.setIdentityM(RotationMatrix, 0);
+			//Matrix.rotateM(RotationMatrix, 0, rotation, 0, 0, -1);
+			//Matrix.multiplyMM(ModelMatrix, 0, ModelMatrix, 0, RotationMatrix, 0);
 			Matrix.scaleM(ModelMatrix, 0, width, height, 1);
+			
+			
 		}
 		
 		
@@ -210,7 +244,10 @@ public class Sprite {
 	private void SetupImage(int ResourceID)
 	{
 		float[] uvs = {
-			0, 0, 0, 1, 1, 1, 1, 0	
+			0, 0, 
+			0, 720.0f/1024.0f, 
+			1, 720.0f/1024.0f, 
+			1, 0	
 		};
 		
 		mUVBuffer = ByteBuffer.allocateDirect(uvs.length * 4).order(ByteOrder.nativeOrder()).asFloatBuffer();
@@ -278,14 +315,25 @@ public class Sprite {
 	}
 	
 	private void InitModel() {
-		float w = (float)1/2;
-		float h = (float)1/2;
-		float[] vertices = {-w, h, -w, -h, w, -h, w, h};
+		float w = width / 2.0f;
+		float h = height / 2.0f;
+		float d = depth / 2.0f;
+//		float[] vertices = {-w, h, -w, -h, w, -h, w, h};
+//		short[] indices = {0,1,2,0,2,3};
+		Log.d("WHD", "Width: " + w + " Height: " + h + " Depth: " + d);
+		float[] vertices = 
+			{
+				-w, h, -d,
+				-w, -h, d,
+				w, -h, d,
+				w, h, -d,
+			};
 		short[] indices = {0,1,2,0,2,3};
+		
 		mVertexBuffer = ByteBuffer.allocateDirect(vertices.length * 4).order(ByteOrder.nativeOrder()).asFloatBuffer();
 		mVertexBuffer.put(vertices).position(0);
 		
-		mIndexBuffer = ByteBuffer.allocateDirect(vertices.length * 2).order(ByteOrder.nativeOrder()).asShortBuffer();
+		mIndexBuffer = ByteBuffer.allocateDirect(indices.length * 2).order(ByteOrder.nativeOrder()).asShortBuffer();
 		mIndexBuffer.put(indices).position(0);
 	}
 	

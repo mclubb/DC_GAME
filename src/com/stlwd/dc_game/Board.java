@@ -6,9 +6,9 @@ import android.opengl.Matrix;
 
 public class Board extends Sprite{
 
-	public Board(Context context, int ResourceID)
+	public Board(Context context, int ResourceID, float _x, float _y, float _z, float _h, float _w, float _d, float _rot)
 	{
-		super(context, ResourceID);
+		super(context, ResourceID, _x, _y, _z, _h, _w, _d, _rot);
 		type = "Board";
 	}
 	
@@ -22,7 +22,7 @@ public class Board extends Sprite{
 		// Position
 		int mPositionHandle = GLES20.glGetAttribLocation(mProgramId, "aPosition");
 		GLES20.glEnableVertexAttribArray(mPositionHandle);
-		GLES20.glVertexAttribPointer(mPositionHandle, 2, GLES20.GL_FLOAT, false, 0, mVertexBuffer);
+		GLES20.glVertexAttribPointer(mPositionHandle, 3, GLES20.GL_FLOAT, false, 0, mVertexBuffer);
 		
 		int mTextureCoordLocation = GLES20.glGetAttribLocation(mProgramId, "aTexCoord");
 		GLES20.glEnableVertexAttribArray(mTextureCoordLocation);
